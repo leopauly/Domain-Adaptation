@@ -1,19 +1,42 @@
 # Description: Function for Preparing datasets MNIST and USPS as numpy image arrays and storing as .png files if needed
-# Author : Leo Pauly | cnlp@leeds.ac.uk
+# Author : Leo Pauly & Rebecca Stone | cnlp@leeds.ac.uk, @ysbecca
 
-from numpy.random import seed
-seed(9)
 import os
-os.environ['PYTHONHASHSEED'] = '0'
 import numpy as np
+from numpy.random import seed
 import scipy.misc as misc
-from sklearn.cross_validation import train_test_split
+from sklearn.utils import shuffle
 from sklearn.datasets import fetch_mldata, load_iris, load_digits
-import scipy.misc
+
+os.environ['PYTHONHASHSEED'] = '0'
+seed(9)
 
 
-def dataset(normalisation=False,store=False,m=.1,n=.1):
-    #Tag: MNIST
+def split_train_valid_test(images, targets, test_size=0.2, valid_size=0.1, no_valid=False):
+    # Convert test and validation ratios into no. of images
+    total_images = len(images)
+    num_test_imgs = int(float(total_images * test_size))
+    num_valid_imgs = int(float(total_images * valid_size))
+    
+    if(no_valid):
+        num_valid_imgs = 0
+
+    num_train_imgs = total_images - (num_test_imgs + num_valid_imgs)
+
+    # Shuffle both images and targets randomly the same way.
+    images, targets = shuffle(images, targets)
+    if(no_valid):
+        # [[train, test], [train, test]]
+        return [[images[:num_train_imgs], images[num_train_imgs:]], [targets[:num_train_imgs], targets[num_train_imgs:]]]
+    else:
+       # [[train, valid, test], [train_target, valid_target, test_target]]
+        return [[images[:num_train_imgs], images[num_train_imgs:(num_train_imgs + num_valid_imgs)], \
+            images[-num_test_imgs:]], [targets[:num_train_imgs], \
+            targets[num_train_imgs:(num_train_imgs + num_valid_imgs)], targets[-num_test_imgs:]]]
+
+
+def dataset(normalisation=False,store=False,test_size=0.2, valid_size=0.1):
+    # Tag: MNIST
     mnist = fetch_mldata("MNIST original")
     mnist_x=mnist.data
     
@@ -24,7 +47,7 @@ def dataset(normalisation=False,store=False,m=.1,n=.1):
         
     mnist_x_new = mnist_x_new.astype('float32')
 
-    #Tag: USPS
+    # Tag: USPS
     usps = fetch_mldata("USPS")
     usps_x=usps.data
         
@@ -53,8 +76,10 @@ def dataset(normalisation=False,store=False,m=.1,n=.1):
         mnist_x_new=mnist_x_new/255
         usps_x_new=usps_x_new/255
 
-    # Spliting data into validation/testing and training data
-    mnist_x_new_train, mnist_x_new_test, mnist_y_new_train, mnist_y_new_test = train_test_split(mnist_x_new, mnist.target,test_size=m,random_state=0)
-    usps_x_new_train, usps_x_new_test, usps_y_new_train, usps_y_new_test = train_test_split(usps_x_new, usps.target,test_size=n,random_state=0)
+    # Splitting data into validation/testing and training data
+    # Convert MNIST targets to integers and decrement the USPS targets to match MNIST.
+    mnist_x, mnist_y = split_train_valid_test(mnist_x_new, np.array(mnist.target).astype(int), test_size=test_size, valid_size=valid_size)
+    usps_x, usps_y = split_train_valid_test(usps_x_new, np.subtract(usps.target, 1), test_size=test_size, valid_size=valid_size, no_valid=True)
     
-    return mnist_x_new_train, mnist_x_new_test, mnist_y_new_train, mnist_y_new_test,usps_x_new_train, usps_x_new_test, usps_y_new_train-1, usps_y_new_test-1   
+    
+    return mnist_x, usps_x, mnist_y, usps_y
