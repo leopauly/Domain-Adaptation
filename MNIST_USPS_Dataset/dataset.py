@@ -64,6 +64,45 @@ class DataSet(object):
   def set_images(self, images):
     self._images = images
     
+
+  def remove_from_set(self, selected):
+  	''' Removes the images at selected indices from the dataset. '''
+  	# TODO: check indices are valid, then remove image and all corresponding details from
+  	# object. Decrement num_images.
+
+  def add_to_set(self, selected, dataset, preds):
+  	''' Adds the images at the selected indices to the dataset and updates the params.'''
+
+  	num_added = np.count_nonzero(selected)
+  	max_preds = np.argmax(preds, axis=1) # Indices of the winning prediction (preds[max_preds[i]])
+
+  	images_, cls_, set_ids_, labels_ = [], [], [], []
+  	for i, s in enumerate(selected):
+  		if s > 0:
+  			images_.append(dataset.images[i])
+  			cls_.append(max_preds[i]) # Add class as PREDICTED by the CNN
+  			set_ids_.append(dataset.set_ids[i])
+  			new_label = np.zeros(10)
+  			new_label[max_preds[i]] = 1
+  			labels_.append(new_label)
+
+  	# Add all the data.
+  	self._images = np.concatenate((self._images, images_))
+  	self._cls = np.concatenate((self._cls, cls_))
+  	self._set_ids = np.concatenate((self._set_ids, set_ids_))
+  	self._labels = np.concatenate((self._labels, labels_))
+  	self._num_images += num_added
+  	
+  	# Reshuffle everything the same way.
+  	perm = np.arange(self._num_images)
+  	np.random.shuffle(perm)
+  	self._images = self._images[perm]
+  	self._cls = self._cls[perm]
+  	self._set_ids = self._set_ids[perm]
+  	self._labels = self._labels[perm]
+
+  	print("Images added to set: " + str(num_added))
+
   def next_batch(self, batch_size):
     """Return the next `batch_size` examples from this data set."""
     start = self._index_in_epoch
@@ -87,6 +126,22 @@ class DataSet(object):
 
     return self._images[start:end], self._labels[start:end] # self._cls[start:end], self._set_ids[start:end]
 
+def generate_combined_dataset(mnist_dataset, usps_dataset):
+	class DataSets(object):
+		pass
+	dataset = DataSets()
+
+	# Complete MNIST
+	dataset.train = DataSet(np.concatenate( \
+		(mnist_dataset.train.images, mnist_dataset.valid.images, mnist_dataset.test.images)), \
+		np.concatenate((mnist_dataset.train.cls, mnist_dataset.valid.cls, mnist_dataset.test.cls)), \
+		np.concatenate((mnist_dataset.train.set_ids, mnist_dataset.valid.set_ids, mnist_dataset.test.set_ids)), \
+		)
+	dataset.test = DataSet(usps_dataset.test.images, usps_dataset.test.cls, usps_dataset.test.set_ids)
+
+	# Only used to keep track of remaining USPS images not yet added in bootstrap iterations.
+	dataset.usps_train = DataSet(usps_dataset.train.images, usps_dataset.train.cls, usps_dataset.train.set_ids)
+	return dataset
 
 def read_datasets():
 	class DataSets(object):
