@@ -240,6 +240,7 @@ def plot_confusion_matrix(data_cls_true, cls_pred):
 
     # Make various adjustments to the plot.
     plt.colorbar()
+    num_classes = 10
     tick_marks = np.arange(num_classes)
     plt.xticks(tick_marks, range(num_classes))
     plt.yticks(tick_marks, range(num_classes))

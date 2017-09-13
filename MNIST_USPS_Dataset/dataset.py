@@ -8,6 +8,7 @@ Author: @ysbecca
 import time
 import mnist_usps as mnus
 from datetime import timedelta
+import numpy as np
 
 class DataSet(object):
 
@@ -26,6 +27,13 @@ class DataSet(object):
     self._images = images
     self._cls = cls
     self._set_ids = set_ids
+
+    # Set the labels based on cls. 
+    labels = np.zeros((self._num_images, 10))
+    for i, cls_ in enumerate(cls):
+    	labels[i][cls_] = 1
+    self._labels = labels
+
     self._epochs_completed = 0
     self._index_in_epoch = 0
 
@@ -36,6 +44,10 @@ class DataSet(object):
   @property
   def cls(self):
     return self._cls
+
+  @property
+  def labels(self):
+    return self._labels
 
   @property
   def set_ids(self):
@@ -62,10 +74,10 @@ class DataSet(object):
       self._epochs_completed += 1
 
       # # Shuffle the data (maybe)
-      perm = np.arange(self._num_images)
-      np.random.shuffle(perm)
-      self._images = self._images[perm]
-      self._labels = self._labels[perm]
+      # perm = np.arange(self._num_images)
+      # np.random.shuffle(perm)
+      # self._images = self._images[perm]
+      # self._labels = self._labels[perm]
       # Start next epoch
 
       start = 0
@@ -73,33 +85,34 @@ class DataSet(object):
       assert batch_size <= self._num_images
     end = self._index_in_epoch
 
-    return self._images[start:end], self._labels[start:end], self._ids[start:end], self._cls[start:end]
+    return self._images[start:end], self._labels[start:end] # self._cls[start:end], self._set_ids[start:end]
 
 
 def read_datasets():
 	class DataSets(object):
 		pass
-	data_sets = DataSets()
+	mnist_datasets = DataSets()
+	usps_datasets = DataSets()
 
 	start_time = time.time()
 
 	# mnist_x[i]; 0 = train, 1 = valid, 2 = test
 	mnist_x, usps_x, mnist_y, usps_y = mnus.dataset(normalisation=True, store=False)
 
-	data_sets.mnist_train = DataSet(mnist_x[0], mnist_y[0], np.zeros((len(mnist_y[0]))))
-	data_sets.mnist_valid = DataSet(mnist_x[1], mnist_y[1], np.zeros((len(mnist_y[1]))))
-	data_sets.mnist_test = DataSet(mnist_x[2], mnist_y[2], np.zeros((len(mnist_y[2]))))
+	mnist_datasets.train = DataSet(mnist_x[0], mnist_y[0], np.zeros((len(mnist_y[0]))))
+	mnist_datasets.valid = DataSet(mnist_x[1], mnist_y[1], np.zeros((len(mnist_y[1]))))
+	mnist_datasets.test = DataSet(mnist_x[2], mnist_y[2], np.zeros((len(mnist_y[2]))))
 
 	# For now, the USPS train includes the validation set, so:
 	# usps_x[i]; 0 = train, 1 = test
-	data_sets.usps_train = DataSet(usps_x[0], usps_y[0], np.ones((len(usps_y[0]))))
-	data_sets.usps_test = DataSet(usps_x[1], usps_y[1], np.ones((len(usps_y[1]))))
+	usps_datasets.train = DataSet(usps_x[0], usps_y[0], np.ones((len(usps_y[0]))))
+	usps_datasets.test = DataSet(usps_x[1], usps_y[1], np.ones((len(usps_y[1]))))
 
 
 	end_time = time.time()
 	time_dif = end_time - start_time
 
 	print("Time elapsed: " + str(timedelta(seconds=int(round(time_dif)))))
-	return data_sets
+	return mnist_datasets, usps_datasets
 
 
