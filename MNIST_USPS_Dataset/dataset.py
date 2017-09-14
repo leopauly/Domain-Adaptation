@@ -67,8 +67,28 @@ class DataSet(object):
 
   def remove_from_set(self, selected):
   	''' Removes the images at selected indices from the dataset. '''
-  	# TODO: check indices are valid, then remove image and all corresponding details from
-  	# object. Decrement num_images.
+  	if(len(selected) != self._num_images):
+  		print("ERROR: number of selected indices does not match dataset size.")
+  		return
+  	num_removed = np.count_nonzero(selected)
+
+  	# Building new arrays instead of altering old ones for efficiency.
+  	new_images, new_cls, new_set_ids, new_labels = [], [], [], []
+  	for i, s in enumerate(selected):
+  		if s == 0:
+  			new_images.append(self._images[i])
+  			new_cls.append(self._cls[i])
+  			new_set_ids.append(self._set_ids[i])
+  			new_labels.append(self._labels[i])
+
+
+  	self._images = np.array(new_images)
+  	self._cls = np.array(new_cls)
+  	self._set_ids = np.array(new_set_ids)
+  	self._labels = np.array(new_labels)
+  	self._num_images -= num_removed
+  	print("Removed " + str(num_removed) + " images from dataset.")
+  	print("Updated dataset size: " + str(self._num_images))
 
   def add_to_set(self, selected, dataset, preds):
   	''' Adds the images at the selected indices to the dataset and updates the params.'''
