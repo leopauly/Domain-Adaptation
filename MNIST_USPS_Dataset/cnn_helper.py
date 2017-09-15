@@ -18,14 +18,15 @@ from sklearn.utils import shuffle
 import random
 import csv
 
-def split_by_threshold(threshold, train_preds):
+def split_by_threshold(threshold, train_preds, silent=False):
     ''' Returns the indices of images with predictions above the given softmax threshold. '''
     max_preds = np.argmax(train_preds, axis=1) # Indices of the winning prediction
     selected = np.zeros((len(train_preds)))
     for i, pred in enumerate(max_preds):
         if train_preds[i][pred] >= threshold:
             selected[i] = 1
-    print("Found " + str(np.count_nonzero(selected)) + " images labeled with confidence >= " + str(threshold))
+    if not silent:
+        print("Found " + str(np.count_nonzero(selected)) + " images labeled with confidence >= " + str(threshold))
     return selected
 
 def write_test_predictions(dataset, fname):

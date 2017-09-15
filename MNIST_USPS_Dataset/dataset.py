@@ -87,8 +87,6 @@ class DataSet(object):
   	self._set_ids = np.array(new_set_ids)
   	self._labels = np.array(new_labels)
   	self._num_images -= num_removed
-  	print("Removed " + str(num_removed) + " images from dataset.")
-  	print("Updated dataset size: " + str(self._num_images))
 
   def add_to_set(self, selected, dataset, preds):
   	''' Adds the images at the selected indices to the dataset and updates the params.'''
