@@ -119,8 +119,6 @@ class DataSet(object):
   	self._set_ids = self._set_ids[perm]
   	self._labels = self._labels[perm]
 
-  	print("Images added to set: " + str(num_added))
-
   def next_batch(self, batch_size):
     """Return the next `batch_size` examples from this data set."""
     start = self._index_in_epoch
@@ -185,7 +183,7 @@ def read_datasets():
 	end_time = time.time()
 	time_dif = end_time - start_time
 
-	print("Time elapsed: " + str(timedelta(seconds=int(round(time_dif)))))
+	# print("Time elapsed: " + str(timedelta(seconds=int(round(time_dif)))))
 	return mnist_datasets, usps_datasets
 
 
