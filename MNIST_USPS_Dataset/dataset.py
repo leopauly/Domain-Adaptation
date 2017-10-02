@@ -89,35 +89,40 @@ class DataSet(object):
   	self._num_images -= num_removed
 
   def add_to_set(self, selected, dataset, preds):
-  	''' Adds the images at the selected indices to the dataset and updates the params.'''
+    ''' Adds the images at the selected indices to the dataset and updates the params.'''
+    num_added = np.count_nonzero(selected)
+    _, n = np.shape(preds)
+    
+    if(n > 1):
+    	max_preds = np.argmax(preds, axis=1) # Indices of the winning prediction (preds[max_preds[i]])
+    else:
+      max_preds = preds
 
-  	num_added = np.count_nonzero(selected)
-  	max_preds = np.argmax(preds, axis=1) # Indices of the winning prediction (preds[max_preds[i]])
 
-  	images_, cls_, set_ids_, labels_ = [], [], [], []
-  	for i, s in enumerate(selected):
-  		if s > 0:
-  			images_.append(dataset.images[i])
-  			cls_.append(max_preds[i]) # Add class as PREDICTED by the CNN
-  			set_ids_.append(dataset.set_ids[i])
-  			new_label = np.zeros(10)
-  			new_label[max_preds[i]] = 1
-  			labels_.append(new_label)
+    images_, cls_, set_ids_, labels_ = [], [], [], []
+    for i, s in enumerate(selected):
+      if s > 0:
+        images_.append(dataset.images[i])
+        cls_.append(max_preds[i]) # Add class as PREDICTED by the CNN
+        set_ids_.append(dataset.set_ids[i])
+        new_label = np.zeros(10)
+        new_label[max_preds[i]] = 1
+        labels_.append(new_label)
 
-  	# Add all the data.
-  	self._images = np.concatenate((self._images, images_))
-  	self._cls = np.concatenate((self._cls, cls_))
-  	self._set_ids = np.concatenate((self._set_ids, set_ids_))
-  	self._labels = np.concatenate((self._labels, labels_))
-  	self._num_images += num_added
-  	
-  	# Reshuffle everything the same way.
-  	perm = np.arange(self._num_images)
-  	np.random.shuffle(perm)
-  	self._images = self._images[perm]
-  	self._cls = self._cls[perm]
-  	self._set_ids = self._set_ids[perm]
-  	self._labels = self._labels[perm]
+    # Add all the data.
+    self._images = np.concatenate((self._images, images_))
+    self._cls = np.concatenate((self._cls, cls_))
+    self._set_ids = np.concatenate((self._set_ids, set_ids_))
+    self._labels = np.concatenate((self._labels, labels_))
+    self._num_images += num_added
+
+    # Reshuffle everything the same way.
+    perm = np.arange(self._num_images)
+    np.random.shuffle(perm)
+    self._images = self._images[perm]
+    self._cls = self._cls[perm]
+    self._set_ids = self._set_ids[perm]
+    self._labels = self._labels[perm]
 
   def next_batch(self, batch_size):
     """Return the next `batch_size` examples from this data set."""
