@@ -13,6 +13,18 @@ import numpy as np
 
 X, Y, W, H = 0, 1, 2, 3
 
+def show_images_with_three_labels_gray(images, label1, label2, label3):
+    fig = plt.figure(figsize=(40, 20))
+    data = images[:25]
+
+    for i, image in enumerate(data):
+        plt.subplot(5, 10, i+1)
+        plt.imshow(image, cmap="gray")
+        plt.title(str(label1[i]) + ", " + str(label2[i]) + ", " + str(label3[i]))
+        plt.axis("off")
+
+    plt.show()
+
 def plot_with_legend(x_range, y_data, legend_labels, x_label, y_label):
     ''' Displays a single plot with multiple datasets and matching legends.
         x_range should be one single array of indices for the x axis, and y_data can 
