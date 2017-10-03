@@ -13,6 +13,22 @@ import numpy as np
 
 X, Y, W, H = 0, 1, 2, 3
 
+def show_images_with_three_labels_gray(images, label1, label2, label3, highlights=False):
+    ''' Display images with labels, and when highlights = True, box in red where 
+        label2 != label3 and label1 is greater than cap value.
+    '''
+    fig = plt.figure(figsize=(20, 10))
+    data = images[:100]
+    
+    for i, image in enumerate(data):
+        plt.subplot(5, 10, i+1)
+
+        plt.imshow(image, cmap="gray")
+        plt.title(str(label1[i]) + ", " + str(label2[i]) + ", " + str(label3[i]))
+        plt.axis("off")
+
+    plt.show()
+
 def show_images_with_three_labels_gray(images, label1, label2, label3):
     fig = plt.figure(figsize=(40, 20))
     data = images[:25]
