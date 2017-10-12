@@ -40,7 +40,7 @@ def write_test_predictions(dataset, fname):
             writer.writerow(row)
 
 
-def new_weights(shape, w_name):
+def new_weights(shape, w_name="w"):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05), name=w_name)
 
 
@@ -103,7 +103,7 @@ def new_conv_layer(input,              # The previous layer.
 
     # We return both the resulting layer and the filter-weights
     # because we will plot the weights later.
-    return layer, weights
+    return layer
 
 def flatten_layer(layer):
     ''' A convolutional layer produces an output tensor with 4 dimensions. We will add 
@@ -137,7 +137,6 @@ def flatten_layer(layer):
 def new_fc_layer(input,          # The previous layer.
                  num_inputs,     # Num. inputs from prev. layer.
                  num_outputs,    # Num. outputs.
-                 w_name,         # Name of weights
                  use_relu=True):
 
     ''' This function creates a new fully-connected layer in the computational graph for TensorFlow. 
@@ -147,7 +146,7 @@ def new_fc_layer(input,          # The previous layer.
     The output is a 2-dim tensor of shape `[num_images, num_outputs]`.
     '''
     # Create new weights and biases.
-    weights = new_weights(shape=[num_inputs, num_outputs], w_name=w_name)
+    weights = new_weights(shape=[num_inputs, num_outputs])
     
     biases = new_biases(length=num_outputs)
 
@@ -159,7 +158,7 @@ def new_fc_layer(input,          # The previous layer.
     if use_relu:
         layer = tf.nn.relu(layer)
 
-    return layer
+    return layer, weights
 
 ''' Placeholder variables. '''
 
