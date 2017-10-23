@@ -51,7 +51,7 @@ def new_conv_layer(input,              # The previous layer.
                    num_input_channels, # Num. channels in prev. layer.
                    filter_size,        # Width and height of each filter.
                    num_filters,        # Number of filters.
-                   w_name,             # Name of weights for layer.
+                   w_name="none",      # Name of weights for layer.
                    use_pooling=True):
     # Shape of the filter-weights for the convolution.
     # This format is determined by the TensorFlow API.
@@ -137,6 +137,7 @@ def flatten_layer(layer):
 def new_fc_layer(input,          # The previous layer.
                  num_inputs,     # Num. inputs from prev. layer.
                  num_outputs,    # Num. outputs.
+                 dropout_keep_rate=1.0,
                  use_relu=True):
 
     ''' This function creates a new fully-connected layer in the computational graph for TensorFlow. 
@@ -152,6 +153,8 @@ def new_fc_layer(input,          # The previous layer.
 
     # Calculate the layer as the matrix multiplication of
     # the input and weights, and then add the bias-values.
+    # TODO: Add dropout back in!!!
+    # dropped_input = tf.nn.dropout(tf.identity(input), keep_prob=dropout_keep_rate)
     layer = tf.matmul(input, weights) + biases
 
     # Use ReLU?
