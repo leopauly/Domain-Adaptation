@@ -80,9 +80,6 @@ def new_conv_layer(input,              # The previous layer.
     # Add the biases to the results of the convolution.
     # A bias-value is added to each filter-channel.
     layer += biases
-    layer = tf.nn.dropout(layer, keep_prob=0.7)
-
-    print(layer)
 
     # Use pooling to down-sample the image resolution?
     if use_pooling:
