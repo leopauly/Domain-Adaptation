@@ -80,6 +80,9 @@ def new_conv_layer(input,              # The previous layer.
     # Add the biases to the results of the convolution.
     # A bias-value is added to each filter-channel.
     layer += biases
+    layer = tf.nn.dropout(layer, keep_prob=0.7)
+
+    print(layer)
 
     # Use pooling to down-sample the image resolution?
     if use_pooling:
@@ -154,8 +157,8 @@ def new_fc_layer(input,          # The previous layer.
     # Calculate the layer as the matrix multiplication of
     # the input and weights, and then add the bias-values.
     # TODO: Add dropout back in!!!
-    dropped_input = tf.nn.dropout(input, keep_prob=dropout_keep_rate)
-    layer = tf.matmul(dropped_input, weights) + biases
+    # dropped_input = tf.nn.dropout(input, keep_prob=dropout_keep_rate)
+    layer = tf.matmul(input, weights) + biases
 
     # Use ReLU?
     if use_relu:
